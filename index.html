@@ -12,31 +12,26 @@
   <h1>#1 Super Guy</h1>
   <div id="tooling">
     <h2>CSRF Test</h2>
-    <form action="https://victim-site.com/endpoint" method="POST">
-      <input type="hidden" name="data" value="malicious_data">
+    <form id="csrf-test-form">
+      <label for="csrf-url">Enter URL to test for CSRF:</label>
+      <input type="text" id="csrf-url" name="csrf-url" placeholder="https://victim-site.com/endpoint"><br><br>
+      <input type="hidden" id="csrf-data" name="data" value="malicious_data">
       <button type="submit">Submit CSRF Request</button>
     </form>
 
     <h2>Open Redirect Test</h2>
-    <a href="https://victim-site.com/redirect?url=https://your-site.github.io">Test Open Redirect</a>
+    <form id="open-redirect-form">
+      <label for="redirect-url">Enter URL to test for open redirect:</label>
+      <input type="text" id="redirect-url" name="redirect-url" placeholder="https://victim-site.com/redirect?url=https://your-site.github.io"><br><br>
+      <button type="submit">Test Open Redirect</button>
+    </form>
 
     <h2>JavaScript Request Test</h2>
-    <button id="test-request-btn">Send Test Request</button>
-    <script>
-      document.getElementById(test-request-btn).addEventListener(click, function() {
-        fetch("https://victim-site.com/api", {
-          method: "GET",
-          credentials: "include"
-        })
-        .then(response => response.text())
-        .then(data => {
-          console.log("Response:", data);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-        });
-      });
-    </script>
+    <form id="js-request-form">
+      <label for="js-request-url">Enter URL to send request to:</label>
+      <input type="text" id="js-request-url" name="js-request-url" placeholder="https://victim-site.com/api"><br><br>
+      <button type="submit">Send Test Request</button>
+    </form>
 
     <h2>Send Arbitrary Request</h2>
     <form id="arbitrary-request-form">
@@ -51,7 +46,52 @@
       <input type="text" id="data" name="data"><br><br>
       <button type="submit">Send Request</button>
     </form>
+
     <script>
+      document.getElementById("csrf-test-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const csrfUrl = document.getElementById("csrf-url").value;
+        const csrfData = document.getElementById("csrf-data").value;
+
+        fetch(csrfUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: `data=${csrfData}`
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log("Response:", data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+      });
+
+      document.getElementById("open-redirect-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const redirectUrl = document.getElementById("redirect-url").value;
+        window.location.href = redirectUrl;
+      });
+
+      document.getElementById("js-request-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const requestUrl = document.getElementById("js-request-url").value;
+
+        fetch(requestUrl, {
+          method: "GET",
+          credentials: "include"
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log("Response:", data);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+      });
+
       document.getElementById("arbitrary-request-form").addEventListener("submit", function(event) {
         event.preventDefault();
         const url = document.getElementById("url").value;
